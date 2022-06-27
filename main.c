@@ -16,33 +16,26 @@
 */
 
 #include "LPC17xx.h"
-#include <stdbool.h>
-
-bool mcp23S17_init();
-bool mcp23S17_configura_pino(uint8_t pin, uint8_t mode);
-bool mcp23S17_escreve_pino(uint8_t pin, uint8_t value);
-uint8_t mcp23S17_le_pino(uint8_t pin);
+#include "mcp23s17.h"
 
 int main(void) {
 	SystemInit();
 
-	while(1) {}
+	mcp23S17_init();
+    mcp23S17_configura_pino(MCP_PIN_15, INPUT);
+    mcp23S17_configura_pino(MCP_PIN_0 , OUTPUT);
+	
+	while(1) {
+		mcp23S17_escreve_pino(MCP_PIN_0, HIGH);
+		delay_ms(1000);
+		mcp23S17_escreve_pino(MCP_PIN_0, LOW);
+		delay_ms(1000);
+		if (mcp23S17_le_pino(MCP_PIN_15) == HIGH) {
+			printf("Botao em VCC\n");
+		} else {
+			printf("Botao em GND\n");
+		}
+	}
 	
 	return 0;
-}
-
-bool mcp23S17_init() {
-
-}
-
-bool mcp23S17_configura_pino(uint8_t pin, uint8_t mode) {
-
-}
-
-bool mcp23S17_escreve_pino(uint8_t pin, uint8_t value) {
-
-}
-
-uint8_t mcp23S17_le_pino(uint8_t pin) {
-	
 }
