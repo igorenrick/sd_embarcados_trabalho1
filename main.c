@@ -16,21 +16,25 @@
 */
 
 #include "LPC17xx.h"
+#include "digital.h"
+#include <stdint.h>
+#include <stdio.h>
+#include "delay.h"
 #include "mcp23s17.h"
 
 int main(void) {
 	SystemInit();
 
 	mcp23S17_init();
-    mcp23S17_configura_pino(MCP_PIN_15, INPUT);
-    mcp23S17_configura_pino(MCP_PIN_0 , OUTPUT);
+    mcp23S17_configura_pino(MCP_PIN_A0, INPUT);
+    mcp23S17_configura_pino(MCP_PIN_A0 , OUTPUT);
 	
 	while(1) {
-		mcp23S17_escreve_pino(MCP_PIN_0, HIGH);
+		mcp23S17_escreve_pino(MCP_PIN_A0, HIGH);
 		delay_ms(1000);
-		mcp23S17_escreve_pino(MCP_PIN_0, LOW);
+		mcp23S17_escreve_pino(MCP_PIN_A0, LOW);
 		delay_ms(1000);
-		if (mcp23S17_le_pino(MCP_PIN_15) == HIGH) {
+		if (mcp23S17_le_pino(MCP_PIN_A0) == HIGH) {
 			printf("Botao em VCC\n");
 		} else {
 			printf("Botao em GND\n");

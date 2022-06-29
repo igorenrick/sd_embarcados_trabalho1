@@ -1,6 +1,6 @@
 GCC_BIN =  /usr/bin/X11/
 PROJECT = main
-OBJECTS = system_LPC17xx.o startup_LPC17xx.o main.o 
+OBJECTS = system_LPC17xx.o startup_LPC17xx.o main.o digital.o periodica.o timer.o delay.o uart.o spi.o mcp23s17.o
 SYS_OBJECTS = 
 INCLUDE_PATHS = -I. -I./LPC1768 
 LIBRARY_PATHS = 
@@ -53,3 +53,7 @@ $(PROJECT).bin: $(PROJECT).elf nxpsum
 	$(OBJCOPY) -O binary $< $@
 	# Compute nxp checksum on .bin file here
 	./nxpsum $@
+
+
+install: 
+	 lpc21isp -control -bin main.bin /dev/ttyUSB0 115200 12000

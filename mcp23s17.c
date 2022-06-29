@@ -14,97 +14,107 @@
 
 #include "mcp23s17.h"
 
-void _le(char end) {
-	/*
-char MCP23S17::_read(char address)                         
-    {
-        _nCs = 0;
-        _spi.write(_readopcode);
-        _spi.write(address);
-        char response = _spi.write(0xFF);                      // 0xFF data to get response
-        _nCs = 1;
-        return response;
-    }
-*/
-}
+void mcp23S17_init() {
+    spi_configura (PIN_4_28, PIN_3_25, PIN_3_26, PIN_4_29);
 
-void _escreve(char end, int dado) {
-	spi_write(1);
-	spi_write(end);
-	spi_write(dado);
-	/*
-                                    
-    void MCP23S17::_write(char address, char data)             
-    {
-        _nCs = 0;
-        _spi.write(_writeopcode);
-        _spi.write(address);
-        _spi.write(data);
-        _nCs = 1;
-    }
-*/
-}
+    uint8_t GPIOB_atual = 0x00;
+    spi_desabilita();
+    spi_write(OPCODE_ESCRITA);
+    spi_write(IODIRB);
+    spi_write(GPIOB_atual);
+    spi_habilita();
 
-bool mcp23S17_init() {
-	spi_configura(PIN_7, PIN_1, PIN_2, PIN_8);
-	_escreve();
-/*
-void MCP23S17::_initialization()
-    {
-        _write(IOCON_ADDR, 0x2a); // 0x2a setup af control register (BANK = 0, MIRROR = 0, SEQOP = 1, DISSLW = 0, HAEN = 1, ODR = 0, INTPOL = 1, NC = 0)
-        _nCs = 1; 
-    }
+    uint8_t IODIRB_atual = 0x00;
+    spi_desabilita();
+    spi_write(OPCODE_ESCRITA);
+    spi_write(IODIRB);
+    spi_write(IODIRB_atual);
+    spi_habilita();
 
-	void MCP23S17::_init() {
-    _write(IOCON, (IOCON_BYTE_MODE | IOCON_HAEN )); // Hardware addressing on, operations toggle between A and B registers
-}
-*/
-}
- 
+    uint8_t GPIOA_atual = 0xFF;
+    spi_desabilita();
+    spi_write(OPCODE_ESCRITA);
+    spi_write(IODIRA);
+    spi_write(GPIOA_atual);
+    spi_habilita();
+
+    uint8_t IODIRA_atual = 0x00;
+    spi_desabilita();
+    spi_write(OPCODE_ESCRITA);
+    spi_write(IODIRA);
+    spi_write(IODIRA_atual);
+    spi_habilita();
     
-bool mcp23S17_configura_pino(uint8_t pin, uint8_t mode) {
-	/*
-
-	void MCP23S17::bit(char reg_address, int bitnumber, bool high_low)
-    {
-        char i; 
-        
-        if(bitnumber >= 1 || bitnumber <= 8)
-        {
-            if(high_low == 1)
-            {
-                i = _read(reg_address); 
-                i = i | (0x01 << (bitnumber-1));
-                _write(reg_address, i);
-            }
-            if(high_low == 0)
-            {
-                i = _read(reg_address);
-                i = i & ~(0x01 << (bitnumber-1));
-                _write(reg_address, i);    
-            } 
-        }
-    }
-
-	*/
-
+    spi_desabilita();
+    spi_write(OPCODE_ESCRITA);
+    spi_write(GPPUB); //pull up
+    spi_write(0xFF);
+    spi_habilita();
 }
 
-bool mcp23S17_escreve_pino(uint8_t pin, uint8_t value) {
-	/*
-	void MCP23S17::write(char reg_address, char data)
-    {
-        _write(reg_address, data);    
-    }*/
+void mcp23S17_configura_pino(uint8_t pin, uint8_t mode) {
+    if(mode == 0x40) { //escrita
+        uint8_t IODIRA_atual = 0x00;
+        spi_desabilita();
+        spi_write(OPCODE_ESCRITA);
+        spi_write(IODIRA); 
+        IODIRA_atual &= ~(1 << pin);
+        spi_write(IODIRA_atual);
+        spi_habilita();
 
+        uint8_t IODIRB_atual = 0xFF;
+        spi_desabilita();
+        spi_write(OPCODE_ESCRITA);
+        spi_write(IODIRB);
+        IODIRB_atual |= (1 << pin);
+        spi_write(IODIRB_atual);
+        spi_habilita();
+    }
+
+    if(mode == 0X41) { //leitura
+        uint8_t IODIRA_atual = 0x00;
+        spi_desabilita();
+        spi_write(OPCODE_LEITURA);
+        spi_write(IODIRA); 
+        IODIRA_atual &= ~(1 << pin);
+        spi_write(IODIRA_atual);
+        spi_habilita();
+
+        uint8_t IODIRB_atual = 0xFF;
+        spi_desabilita();
+        spi_write(OPCODE_LEITURA);
+        spi_write(IODIRB);
+        IODIRB_atual |= (1 << pin);
+        spi_write(IODIRB_atual);
+        spi_habilita();
+    }
+}
+
+void mcp23S17_escreve_pino(uint8_t pin, uint8_t value) {
+    uint8_t GPIOA_atual = 0xFF;
+      if (value == 1) {
+        GPIOA_atual |= (1 << pin);
+      }else if (value == 0){ 
+        GPIOA_atual &= ~(1 << pin);
+      } 
+    
+      spi_desabilita();
+      spi_write(OPCODE_ESCRITA);
+      spi_write(GPIOA);
+      uint8_t b = spi_write(GPIOA_atual);
+      spi_habilita();  
+      return (uint8_t)0;
 }
 
 uint8_t mcp23S17_le_pino(uint8_t pin) {
-	/*
+    uint8_t GPIOB_atual = 0x00;
+    
+    GPIOB_atual |= (1 << pin);
 
-	char MCP23S17::read(char reg_address)
-    {
-        return _read(reg_address);    
-    }
-	*/
+    spi_desabilita();
+    spi_write(OPCODE_LEITURA);
+    spi_write(GPIOB);
+    uint8_t b = spi_write(GPIOB_atual);
+    spi_habilita(); 
+    return (b >> pin) & 1;
 }
