@@ -29,6 +29,9 @@ char MCP23S17::_read(char address)
 }
 
 void _escreve(char end, int dado) {
+	spi_write(1);
+	spi_write(end);
+	spi_write(dado);
 	/*
                                     
     void MCP23S17::_write(char address, char data)             
@@ -43,7 +46,8 @@ void _escreve(char end, int dado) {
 }
 
 bool mcp23S17_init() {
-	spi_configura();
+	spi_configura(PIN_7, PIN_1, PIN_2, PIN_8);
+	_escreve();
 /*
 void MCP23S17::_initialization()
     {
