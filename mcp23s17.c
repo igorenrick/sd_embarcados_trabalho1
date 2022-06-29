@@ -54,67 +54,111 @@ void mcp23S17_init() {
 
 void mcp23S17_configura_pino(uint8_t pin, uint8_t mode) {
     if(mode == 0x40) { //escrita
-        uint8_t IODIRA_atual = 0x00;
-        spi_desabilita();
-        spi_write(OPCODE_ESCRITA);
-        spi_write(IODIRA); 
-        IODIRA_atual &= ~(1 << pin);
-        spi_write(IODIRA_atual);
-        spi_habilita();
-
-        uint8_t IODIRB_atual = 0xFF;
-        spi_desabilita();
-        spi_write(OPCODE_ESCRITA);
-        spi_write(IODIRB);
-        IODIRB_atual |= (1 << pin);
-        spi_write(IODIRB_atual);
-        spi_habilita();
+        if(pin > 7) {
+            pin = get_pino_b(pin);
+            uint8_t IODIRB_atual = 0xFF;
+            spi_desabilita();
+            spi_write(OPCODE_ESCRITA);
+            spi_write(IODIRB);
+            IODIRB_atual |= (1 << pin);
+            spi_write(IODIRB_atual);
+            spi_habilita();
+        } else {
+            uint8_t IODIRA_atual = 0x00;
+            spi_desabilita();
+            spi_write(OPCODE_ESCRITA);
+            spi_write(IODIRA); 
+            IODIRA_atual &= ~(1 << pin);
+            spi_write(IODIRA_atual);
+            spi_habilita();
+        }
     }
 
     if(mode == 0X41) { //leitura
-        uint8_t IODIRA_atual = 0x00;
-        spi_desabilita();
-        spi_write(OPCODE_LEITURA);
-        spi_write(IODIRA); 
-        IODIRA_atual &= ~(1 << pin);
-        spi_write(IODIRA_atual);
-        spi_habilita();
-
-        uint8_t IODIRB_atual = 0xFF;
-        spi_desabilita();
-        spi_write(OPCODE_LEITURA);
-        spi_write(IODIRB);
-        IODIRB_atual |= (1 << pin);
-        spi_write(IODIRB_atual);
-        spi_habilita();
+        if(pin > 7) {
+            pin = get_pino_b(pin);
+            uint8_t IODIRB_atual = 0xFF;
+            spi_desabilita();
+            spi_write(OPCODE_LEITURA);
+            spi_write(IODIRB);
+            IODIRB_atual |= (1 << pin);
+            spi_write(IODIRB_atual);
+            spi_habilita();
+        } else {
+            uint8_t IODIRA_atual = 0x00;
+            spi_desabilita();
+            spi_write(OPCODE_LEITURA);
+            spi_write(IODIRA); 
+            IODIRA_atual &= ~(1 << pin);
+            spi_write(IODIRA_atual);
+            spi_habilita();
+        }
     }
 }
 
 void mcp23S17_escreve_pino(uint8_t pin, uint8_t value) {
-    uint8_t GPIOA_atual = 0xFF;
-      if (value == 1) {
-        GPIOA_atual |= (1 << pin);
-      }else if (value == 0){ 
-        GPIOA_atual &= ~(1 << pin);
-      } 
-    
-      spi_desabilita();
-      spi_write(OPCODE_ESCRITA);
-      spi_write(GPIOA);
-      uint8_t b = spi_write(GPIOA_atual);
-      spi_habilita();  
-      return (uint8_t)0;
+    if(pin > 7) {
+        pin = get_pino_b(pin);
+        uint8_t GPIOB_atual = 0xFF;
+        if (value == 1) {
+            GPIOB_atual |= (1 << pin);
+        } else if (value == 0) { 
+            GPIOB_atual &= ~(1 << pin);
+        }
+        spi_desabilita();
+        spi_write(OPCODE_ESCRITA);
+        spi_write(GPIOB);
+        uint8_t b = spi_write(GPIOB_atual);
+        spi_habilita();
+        return (uint8_t)0;
+    } else {
+        uint8_t GPIOA_atual = 0xFF;
+        if (value == 1) {
+            GPIOA_atual |= (1 << pin);
+        } else if (value == 0) { 
+            GPIOA_atual &= ~(1 << pin);
+        }
+        spi_desabilita();
+        spi_write(OPCODE_ESCRITA);
+        spi_write(GPIOA);
+        uint8_t b = spi_write(GPIOA_atual);
+        spi_habilita();
+        return (uint8_t)0;
+    }
 }
 
 uint8_t mcp23S17_le_pino(uint8_t pin) {
-    uint8_t GPIOB_atual = 0x00;
-    
-    GPIOB_atual |= (1 << pin);
+    if(pin > 7) {
+        pin = get_pino_b(pin);
+        uint8_t GPIOB_atual = 0x00;
+        GPIOB_atual |= (1 << pin);
+        
+        spi_desabilita();
+        spi_write(OPCODE_LEITURA);
+        spi_write(GPIOB);
+        uint8_t b = spi_write(GPIOB_atual);
+        spi_habilita();
+        return (b >> pin) & 1;
+    } else {
+        uint8_t GPIOA_atual = 0x00;
+        GPIOA_atual |= (1 << pin);
+        
+        spi_desabilita();
+        spi_write(OPCODE_LEITURA);
+        spi_write(GPIOA);
+        uint8_t b = spi_write(GPIOA_atual);
+        spi_habilita();
+        return (b >> pin) & 1;
+    }
+}
 
-    spi_desabilita();
-    spi_write(OPCODE_LEITURA);
-    spi_write(GPIOB);
-    uint8_t b = spi_write(GPIOB_atual);
-    spi_habilita(); 
-    return (b >> pin) & 1;
+u_int8_t get_pino_b(uint8_t pin) {
+    if(pin == 8) return 0;
+    if(pin == 9) return 1;
+    if(pin == 10) return 2;
+    if(pin == 11) return 3;
+    if(pin == 12) return 4;
+    if(pin == 13) return 5;
+    if(pin == 14) return 6;
+    if(pin == 15) return 7;
 }

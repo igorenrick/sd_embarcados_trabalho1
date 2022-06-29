@@ -24,15 +24,31 @@
 
 int main(void) {
 	SystemInit();
-
+    delay_init();
 	mcp23S17_init();
+
     mcp23S17_configura_pino(MCP_PIN_A0, INPUT);
-    mcp23S17_configura_pino(MCP_PIN_A0 , OUTPUT);
+	mcp23S17_configura_pino(MCP_PIN_A1, INPUT);
+	mcp23S17_configura_pino(MCP_PIN_A2, INPUT);
+	mcp23S17_configura_pino(MCP_PIN_A3, INPUT);
+	mcp23S17_configura_pino(MCP_PIN_A4, INPUT);
+	mcp23S17_configura_pino(MCP_PIN_A5, INPUT);
+	mcp23S17_configura_pino(MCP_PIN_A6, INPUT);
+	mcp23S17_configura_pino(MCP_PIN_A7, INPUT);
+
+    mcp23S17_configura_pino(MCP_PIN_B0 , OUTPUT);
+	mcp23S17_configura_pino(MCP_PIN_B1 , OUTPUT);
+	mcp23S17_configura_pino(MCP_PIN_B2 , OUTPUT);
+	mcp23S17_configura_pino(MCP_PIN_B3 , OUTPUT);
+	mcp23S17_configura_pino(MCP_PIN_B4 , OUTPUT);
+	mcp23S17_configura_pino(MCP_PIN_B5 , OUTPUT);
+	mcp23S17_configura_pino(MCP_PIN_B6 , OUTPUT);
+	mcp23S17_configura_pino(MCP_PIN_B7 , OUTPUT);
 	
 	while(1) {
-		mcp23S17_escreve_pino(MCP_PIN_A0, HIGH);
+		mcp23S17_escreve_pino(MCP_PIN_B0, HIGH);
 		delay_ms(1000);
-		mcp23S17_escreve_pino(MCP_PIN_A0, LOW);
+		mcp23S17_escreve_pino(MCP_PIN_B0, LOW);
 		delay_ms(1000);
 		if (mcp23S17_le_pino(MCP_PIN_A0) == HIGH) {
 			printf("Botao em VCC\n");
